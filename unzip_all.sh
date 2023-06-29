@@ -5,5 +5,5 @@ ext="*.zip"
 
 for zipfile in $(find . -name $ext | sort)
 do
-    unzip $zipfile
+    unzip -n $zipfile # skip the unzipped files
 done
