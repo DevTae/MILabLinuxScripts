@@ -1,9 +1,8 @@
 import os
-import zipfile
-import tarfile
 
 # Developed by DevTae@2023
 # 전체 압축 파일에 대한 자동 스크립트 제작을 위한 파이썬 코드입니다.
+# 압축 푼 파일에 대하여 바로 삭제하는 기능도 추가하였습니다.
 # 1. python make_extract_all_sh.py
 # 2. bash extract_all.sh
 
@@ -13,22 +12,28 @@ def extract_cmd(path, file):
         file = os.path.join(path, file).replace(" ", "\\ ")
         directory = file.replace(ext, "")
         cmd = "mkdir -p " + directory + "\n"
-        return cmd + "unzip -n " + file + " -d " + directory
+        cmd += "unzip -n " + file + " -d " + directory + "\n"
+        cmd += "rm " + file + "\n"
+        return cmd
 
     elif file.endswith(".tar"):
         ext = ".tar"
         file = os.path.join(path, file).replace(" ", "\\ ")
         directory = file.replace(ext, "")
         cmd = "mkdir -p " + directory + "\n"
-        return cmd + "tar -xvfk " + file + " -C " + directory
+        cmd += "tar -xvfk " + file + " -C " + directory + "\n"
+        cmd += "rm " + file + "\n"
+        return cmd
 
     elif file.endswith(".tar.gz"):
         ext = ".tar.gz"
         file = os.path.join(path, file).replace(" ", "\\ ")
         directory = file.replace(ext, "")
         cmd = "mkdir -p " + directory + "\n"
-        return cmd + "tar -zxvfk " + file + " -C " + directory
-
+        cmd += "tar -zxvfk " + file + " -C " + directory + "\n"
+        cmd += "rm " + file + "\n"
+        return cmd
+        
     return None
 
 
