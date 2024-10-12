@@ -19,6 +19,8 @@
     - **GPU 메모리 사용량 모니터링** 스크립트
   - `gpu_slack_alert.sh`
     - **GPU 메모리 모니터링 및 위험 알림** 스크립트
+
++) Dependabot 추가
   
 -----
 
