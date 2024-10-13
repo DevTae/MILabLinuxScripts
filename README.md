@@ -15,6 +15,8 @@
     - **리눅스 사용자 자동 등록, 디렉토리 생성 및 Docker 권한 설정** 스크립트
   - `user_add_batch.yml`
     - **리눅스 사용자 자동 등록, 디렉토리 생성 및 Docker 권한 설정** Ansible Playbook 스크립트
+    - hosts 에 원격 호스트 정보 추가
+    - ansible-playbook -i hosts user_add_batch.yml
   - `user_del_batch.sh`
     - **리눅스 사용자 제거, 디렉토리 제거 및 Docker 권한 해제 설정** 스크립트
   - `nvidia-smi.sh`
