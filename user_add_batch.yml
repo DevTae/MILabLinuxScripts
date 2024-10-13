@@ -1,0 +1,57 @@
+---
+- name: Create users and configure sudoers
+  hosts: all
+  become: yes
+  vars:
+    pwds_normal:
+      user1: password1
+      user2: password2
+      user3: password3
+    pwds_admin:
+      admin1: password1
+      admin2: password2
+      admin3: password3
+
+  tasks:
+    - name: Ensure bash is the default shell for user creation
+      user:
+        name: "{{ item }}"
+        shell: /bin/bash
+      loop:
+        - user1
+        - user2
+        - user3
+        - admin1
+        - admin2
+        - admin3
+
+    - name: Create normal users
+      user:
+        name: "{{ item.key }}"
+        password: "{{ item.value | password_hash('sha512') }}"
+        home: "/home/{{ item.key }}"
+        state: present
+      loop: "{{ pwds_normal | dict2items }}"
+
+    - name: Create admin users
+      user:
+        name: "{{ item.key }}"
+        password: "{{ item.value | password_hash('sha512') }}"
+        home: "/home/{{ item.key }}"
+        system: yes
+        state: present
+      loop: "{{ pwds_admin | dict2items }}"
+
+    - name: Add sudo privileges for normal users (Docker access only)
+      copy:
+        dest: "/etc/sudoers.d/{{ item.key }}"
+        content: "{{ item.key }} ALL=(ALL) NOPASSWD: /usr/bin/docker"
+        mode: '0440'
+      loop: "{{ pwds_normal | dict2items }}"
+
+    - name: Add sudo privileges for admin users (Full access)
+      copy:
+        dest: "/etc/sudoers.d/{{ item.key }}"
+        content: "{{ item.key }} ALL=(ALL) NOPASSWD:ALL"
+        mode: '0440'
+      loop: "{{ pwds_admin | dict2items }}"
