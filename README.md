@@ -13,6 +13,8 @@
     - x-window user access 를 얻기 위한 xauth cache config 설정 스크립트
   - `user_add_batch.sh`
     - **리눅스 사용자 자동 등록, 디렉토리 생성 및 Docker 권한 설정** 스크립트
+  - `user_add_batch.yml`
+    - **리눅스 사용자 자동 등록, 디렉토리 생성 및 Docker 권한 설정** Ansible Playbook 스크립트
   - `user_del_batch.sh`
     - **리눅스 사용자 제거, 디렉토리 제거 및 Docker 권한 해제 설정** 스크립트
   - `nvidia-smi.sh`
