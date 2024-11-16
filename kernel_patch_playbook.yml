@@ -1,0 +1,45 @@
+# Ansible Playbook + exporter + kexec 기반 커널 패치 기능 수행 (예시 코드)
+---
+- name: Check server load before kernel update
+  hosts: all
+  tasks:
+    - name: Fetch server load status from Exporter
+      uri:
+        url: "http://{{ inventory_hostname }}:9100/metrics"
+        return_content: yes
+      register: server_metrics
+
+    # 서버 메트릭 상태 확인
+    - name: Parse server metric status
+      set_fact:
+        server_load: "{{ server_metrics.content | regex_search('node_load1 ([0-9.]+)', '\\1') | float }}"
+
+    # 사용량 많은 경우, 커널 업데이트 우선 생략 (exporter 데이터 바탕으로 재시도) 
+    - name: Exclude high load servers
+      debug:
+        msg: "Server {{ inventory_hostname }} is under high load, skipping kernel update"
+      when: server_load > 1.0
+
+    # 사용량 적은 경우, 업데이트 기능 수행 
+    - name: Apply kernel patch if server load is low
+      block:
+        # 커널 업데이트 수행 
+        - name: Install new kernel
+          yum:
+            name: kernel-latest
+            state: present
+
+        # 새로 설치된 커널 버전 확인
+        - name: Get new kernel version
+          shell: "rpm -q --queryformat '%{VERSION}-%{RELEASE}\\n' kernel | tail -n 1"
+          register: new_kernel_version
+
+        # 커널 적용 (kexec로 새 커널 로드)
+        - name: Prepare kexec with new kernel
+          shell: "kexec -l /boot/vmlinuz-{{ new_kernel_version.stdout }} --initrd=/boot/initramfs-{{ new_kernel_version.stdout }}.img --append='root=$(grep -oP '(?<=^root=).*' /proc/cmdline)'"
+        
+        # 커널 재부팅 (kexec로 즉시 부팅)
+        - name: Reboot with kexec
+          shell: "kexec -e"
+          
+      when: server_load <= 1.0
